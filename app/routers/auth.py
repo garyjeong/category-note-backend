@@ -11,42 +11,34 @@ import httpx
 router = APIRouter()
 
 
-@router.get("/login/{provider}")
-async def login(provider: str, request: Request):
+@router.get("/signin/{provider}")
+async def signin(provider: ProviderType, request: Request):
     """OAuth 로그인 시작"""
-    if provider not in ["github", "google"]:
-        raise HTTPException(
-            status_code=400, detail="지원하지 않는 OAuth 제공자입니다."
-        )
 
     # OAuth 제공자별 리다이렉트 URL 설정
     redirect_uri = str(request.url_for("auth_callback", provider=provider))
 
     # OAuth 인증 URL로 리다이렉트
-    return await oauth.create_client(provider).authorize_redirect(
+    return await oauth.create_client(provider.value).authorize_redirect(
         request, redirect_uri
     )
 
 
 @router.get("/callback/{provider}")
 async def auth_callback(
-    provider: str, request: Request, db: Session = Depends(get_db)
+    provider: ProviderType, request: Request, db: Session = Depends(get_db)
 ):
     """OAuth 콜백 처리"""
-    if provider not in ["github", "google"]:
-        raise HTTPException(
-            status_code=400, detail="지원하지 않는 OAuth 제공자입니다."
-        )
 
     try:
         # OAuth 토큰 받기
-        client = oauth.create_client(provider)
+        client = oauth.create_client(provider.value)
         token = await client.authorize_access_token(request)
 
         # 사용자 정보 가져오기
-        if provider == "github":
+        if provider == ProviderType.GITHUB:
             user_info = await _get_github_user_info(token)
-        elif provider == "google":
+        elif provider == ProviderType.GOOGLE:
             user_info = await _get_google_user_info(token)
 
         # 사용자 생성 또는 조회
@@ -120,28 +112,6 @@ async def _get_google_user_info(token: dict) -> OAuthUserInfo:
             provider=ProviderType.GOOGLE,
             provider_id=user_data["id"],
         )
-
-
-@router.get("/me")
-async def get_current_user(request: Request, db: Session = Depends(get_db)):
-    """현재 로그인한 사용자 정보 조회"""
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="인증 토큰이 필요합니다.")
-
-    token = auth_header.split(" ")[1]
-    payload = AuthController.verify_token(token)
-
-    if not payload:
-        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-
-    user = db.query(User).filter(User.id == payload["user_id"]).first()
-    if not user:
-        raise HTTPException(
-            status_code=404, detail="사용자를 찾을 수 없습니다."
-        )
-
-    return user
 
 
 @router.post("/logout")

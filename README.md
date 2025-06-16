@@ -161,10 +161,6 @@ docker build -f Dockerfiles/database.Dockerfile -t category-note-db .
 docker run -d \
   --name category-note-mysql \
   -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=rootpassword \
-  -e MYSQL_DATABASE=category_note \
-  -e MYSQL_USER=category_user \
-  -e MYSQL_PASSWORD=category_password \
   -v mysql_data:/var/lib/mysql \
   category-note-db
 
