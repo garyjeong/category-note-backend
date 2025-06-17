@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.configs.database import Base
 import enum
@@ -32,6 +33,10 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
     last_login_at = Column(DateTime(timezone=True), nullable=True)
+
+    # 관계 설정
+    urls = relationship("URL", back_populates="user")
+    bookmark_notes = relationship("BookmarkNote", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', provider='{self.provider.value}')>"
