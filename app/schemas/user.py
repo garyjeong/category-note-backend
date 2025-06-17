@@ -24,12 +24,12 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: int
-    provider: ProviderType
+    provider: str  # 문자열로 변경하여 직렬화 호환성 향상
     is_active: bool
     is_verified: bool
     created_at: datetime
     updated_at: datetime
-    last_login_at: Optional[datetime] = None
+    last_login: Optional[datetime] = None  # 필드명 변경
 
     class Config:
         from_attributes = True

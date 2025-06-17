@@ -30,9 +30,10 @@ YouTube와 지식 웹 페이지를 정리하는 백엔드 API 서비스입니다
 ## 🛠 기술 스택
 
 ### 백엔드
-- **FastAPI 0.104.1** - 고성능 웹 프레임워크
-- **Python 3.8+** - 프로그래밍 언어
-- **Uvicorn** - ASGI 서버
+- **FastAPI 0.115.12** - 고성능 웹 프레임워크 (최신 버전)
+- **Python 3.9+** - 프로그래밍 언어 (최신 authlib 호환성)
+- **Uvicorn 0.34.3** - ASGI 서버 (최신 버전)
+- **uv** - 빠른 Python 패키지 매니저 (pip 대체)
 
 ### 데이터베이스
 - **MySQL 8.0** - 프로덕션 데이터베이스
@@ -106,22 +107,33 @@ git clone <repository-url>
 cd category-note-backend
 ```
 
-### 2. Python 가상환경 설정 (권장)
+### 2. uv 설치 (권장)
 
 ```bash
-# 가상환경 생성
-python -m venv venv
+# macOS/Linux에서 uv 설치
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 가상환경 활성화
-# macOS/Linux:
-source venv/bin/activate
-# Windows:
-venv\Scripts\activate
+# 또는 pip로 설치
+pip install uv
 ```
 
 ### 3. 의존성 설치
 
 ```bash
+# uv를 사용하여 가상환경 생성 및 의존성 설치 (권장)
+uv sync
+
+# 또는 개발 의존성까지 모두 설치
+uv sync --all-groups
+```
+
+#### 기존 pip 방식 (레거시)
+
+```bash
+# 기존 방식 (권장하지 않음)
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 ```
 
@@ -188,17 +200,25 @@ FLUSH PRIVILEGES;
 #### 개발 서버 실행
 
 ```bash
-# run.py 스크립트 사용 (권장)
-python run.py
+# uv를 사용한 실행 (권장)
+uv run python run.py
 
-# 또는 uvicorn 직접 사용
+# 또는 uv로 직접 uvicorn 실행
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# 기존 방식 (가상환경 활성화 후)
+python run.py
+# 또는
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 #### 프로덕션 서버 실행
 
 ```bash
-# 프로덕션 환경에서는 reload 옵션 제거
+# uv를 사용한 프로덕션 실행
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+# 기존 방식
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
@@ -214,16 +234,20 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ### 전체 테스트 실행
 
 ```bash
-# 모든 테스트 실행
-python -m pytest tests/ -v
+# uv를 사용한 테스트 실행 (권장)
+uv run pytest tests/ -v
 
 # 커버리지와 함께 테스트 실행
-python -m pytest tests/ -v --cov=app --cov-report=html
+uv run pytest tests/ -v --cov=app --cov-report=html
 
 # 특정 테스트 파일만 실행
-python -m pytest tests/test_models.py -v
-python -m pytest tests/test_controllers.py -v
-python -m pytest tests/test_auth.py -v
+uv run pytest tests/test_models.py -v
+uv run pytest tests/test_controllers.py -v
+uv run pytest tests/test_auth.py -v
+
+# 기존 방식 (가상환경 활성화 후)
+python -m pytest tests/ -v
+python -m pytest tests/ -v --cov=app --cov-report=html
 ```
 
 ### 테스트 카테고리

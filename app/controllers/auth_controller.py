@@ -56,7 +56,8 @@ class AuthController:
     def create_access_token(user: User) -> str:
         """JWT 액세스 토큰 생성"""
         payload = {
-            "user_id": user.id,
+            "sub": str(user.id),  # JWT 표준에 따라 sub 키 사용
+            "user_id": user.id,  # 호환성을 위해 기존 키도 유지
             "email": user.email,
             "exp": datetime.utcnow() + timedelta(seconds=JWT_EXPIRATION_TIME),
         }
