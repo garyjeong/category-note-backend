@@ -31,14 +31,14 @@ YouTube와 지식 웹 페이지를 정리하는 백엔드 API 서비스입니다
 
 ### 백엔드
 - **FastAPI 0.115.12** - 고성능 웹 프레임워크 (최신 버전)
-- **Python 3.9+** - 프로그래밍 언어 (최신 authlib 호환성)
+- **Python 3.9+** - 프로그래밍 언어 (**authlib 1.6.0 호환성으로 인한 최소 버전**)
 - **Uvicorn 0.34.3** - ASGI 서버 (최신 버전)
-- **uv** - 빠른 Python 패키지 매니저 (pip 대체)
+- **uv** - 빠른 Python 패키지 매니저 (pip 대체, 빠른 설치 및 빌드)
 
 ### 데이터베이스
 - **MySQL 8.0** - 프로덕션 데이터베이스
 - **SQLite** - 테스트 환경 데이터베이스
-- **SQLAlchemy 2.0.23** - ORM
+- **SQLAlchemy 2.0.41** - ORM (최신 버전)
 - **PyMySQL** - MySQL 드라이버
 
 ### 인증
@@ -48,16 +48,19 @@ YouTube와 지식 웹 페이지를 정리하는 백엔드 API 서비스입니다
 - **python-jose** - JWT 처리
 
 ### 테스트
-- **pytest 7.4.3** - 테스트 프레임워크
+- **pytest 8.4.0** - 테스트 프레임워크 (최신 버전)
 - **pytest-asyncio** - 비동기 테스트 지원
-- **pytest-cov** - 코드 커버리지
-- **factory-boy** - 테스트 데이터 팩토리
-- **faker** - 가짜 데이터 생성
+- **pytest-cov 6.2.1** - 코드 커버리지 (최신 버전)
+- **factory-boy 3.3.3** - 테스트 데이터 팩토리 (최신 버전)
+- **faker 37.4.0** - 가짜 데이터 생성 (최신 버전)
 
 ### 개발 도구
 - **Docker** - 컨테이너화
 - **Pydantic** - 데이터 검증
 - **CORS** - 크로스 오리진 요청 지원
+- **pyproject.toml** - 현대적인 Python 프로젝트 설정 (uv와 함께)
+- **Ruff** - 빠른 린터 및 포매터
+- **VS Code 디버그 설정** - 개발 및 테스트 환경 지원
 
 ## 📁 프로젝트 구조
 
@@ -82,17 +85,21 @@ category-note-backend/
 │   └── routers/                 # API 라우터
 │       ├── __init__.py         # 라우터 패키지 초기화
 │       └── auth.py             # 인증 API 엔드포인트
+├── .vscode/                     # VS Code 설정
+│   └── launch.json             # 디버그 설정 (4가지 구성)
 ├── tests/                       # 테스트 코드 (TDD)
 │   ├── __init__.py             # 테스트 패키지 초기화
 │   ├── conftest.py             # pytest 설정 및 픽스처
 │   ├── test_models.py          # 모델 테스트 (7개 테스트)
 │   ├── test_controllers.py     # 컨트롤러 테스트 (12개 테스트)
-│   └── test_auth.py            # API 엔드포인트 테스트 (12개 테스트)
+│   └── test_auth.py            # API 엔드포인트 테스트 (13개 테스트)
 ├── Dockerfiles/                 # Docker 설정
 │   └── database.Dockerfile     # MySQL 컨테이너 설정
 ├── database/                    # 데이터베이스 설정
 │   └── my.cnf                  # MySQL 설정 파일
-├── requirements.txt             # Python 의존성
+├── pyproject.toml              # 현대적 Python 프로젝트 설정 (uv, 의존성, 빌드 설정)
+├── uv.lock                     # uv 의존성 잠금 파일
+├── requirements.txt             # Python 의존성 (레거시)
 ├── run.py                      # 개발 서버 실행 스크립트
 ├── test.db                     # SQLite 테스트 데이터베이스 (자동 생성)
 └── README.md                   # 프로젝트 문서
@@ -560,23 +567,70 @@ docker-compose down -v
 1. **코드 에디터 설정**
    - VS Code 권장
    - Python 확장 설치
-   - 린터 설정 (flake8, black)
+   - 린터 설정 (Ruff 사용)
 
-2. **Git 훅 설정**
+2. **VS Code 디버그 설정 (.vscode/launch.json)**
+   
+   프로젝트에 포함된 디버그 설정으로 다음 4가지 구성을 제공합니다:
+   
+   - **FastAPI Dev Server** - `run.py`를 통한 개발 서버 실행
+   - **FastAPI with Uvicorn** - Uvicorn을 직접 사용한 서버 실행
+   - **Run Tests** - 테스트 실행 (단순)
+   - **Run Tests with Coverage** - 커버리지와 함께 테스트 실행
+   
+   **사용법**: VS Code에서 `F5` 키를 누르거나 실행 및 디버그 패널에서 원하는 구성을 선택하여 실행
+
+3. **환경변수 설정**
+   
+   디버그 설정에는 기본 환경변수가 포함되어 있지만, 실제 사용시 `.env` 파일을 생성하여 다음과 같이 설정하세요:
+   
+   ```env
+   DATABASE_URL=mysql+pymysql://category_user:category_password@localhost:3306/category_note
+   JWT_SECRET_KEY=your-super-secret-jwt-key-here-make-it-very-long-and-random
+   GITHUB_CLIENT_ID=your-github-client-id
+   GITHUB_CLIENT_SECRET=your-github-client-secret
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   ```
+
+4. **Git 훅 설정 (선택사항)**
    ```bash
-   # pre-commit 설치
+   # pre-commit 설치 (uv 사용)
+   uv add --dev pre-commit
+   
+   # 기존 방식
    pip install pre-commit
    
    # pre-commit 설정
    pre-commit install
    ```
 
+5. **pyproject.toml 설정**
+   
+   프로젝트는 `pyproject.toml`을 통해 현대적인 Python 프로젝트 구조를 사용합니다:
+   
+   - **프로젝트 메타데이터**: 이름, 버전, 설명, 저자 정보
+   - **의존성 관리**: 프로덕션 및 개발 의존성 분리
+   - **빌드 시스템**: Hatchling을 사용한 빌드 설정
+   - **테스트 설정**: pytest 구성 및 커버리지 설정
+   - **코드 품질**: Ruff 린터 및 포매터 설정
+   
+   의존성 그룹:
+   ```bash
+   # 프로덕션 의존성만 설치
+   uv sync --only-prod
+   
+   # 개발 의존성 포함 전체 설치
+   uv sync --all-groups
+   ```
+
 ### 코딩 스타일
 
-- **PEP 8** 준수
+- **PEP 8** 준수 (Ruff로 자동 확인)
 - **Type hints** 사용
 - **Docstring** 작성
 - **테스트 우선 개발 (TDD)**
+- **Ruff 린터/포매터** 사용 (pyproject.toml에 설정됨)
 
 ### 새 기능 추가 시 절차
 
@@ -744,19 +798,41 @@ lsof -i :3306
 - 토큰 만료 시간 확인
 - 토큰 형식 확인 (`Bearer <token>`)
 
-#### 4. 테스트 실행 오류
+#### 4. Python 버전 호환성 오류
+
+**문제**: `authlib==1.6.0 depends on Python>=3.9` 오류
+
+**원인**: authlib 1.6.0부터 Python 3.9+ 필요하지만 프로젝트 설정이 >=3.8로 되어 있음
+
+**해결책**:
+```bash
+# Python 3.9+ 설치 및 사용 확인
+python --version  # 3.9 이상이어야 함
+
+# pyproject.toml의 requires-python이 ">=3.9"로 설정되어 있는지 확인
+# (이미 업데이트됨)
+
+# uv로 다시 설치
+uv sync
+```
+
+#### 5. 테스트 실행 오류
 
 **문제**: 테스트가 실행되지 않음
 
 **해결책**:
 ```bash
-# 테스트 의존성 재설치
-pip install -r requirements.txt
+# uv를 사용한 테스트 의존성 재설치 (권장)
+uv sync --all-groups
 
 # 테스트 환경 확인
-python -m pytest --version
+uv run python -m pytest --version
 
 # 특정 테스트만 실행
+uv run python -m pytest tests/test_models.py -v
+
+# 기존 방식 (레거시)
+pip install -r requirements.txt
 python -m pytest tests/test_models.py -v
 ```
 
@@ -797,10 +873,17 @@ EXPLAIN SELECT * FROM users WHERE email = 'user@example.com';
 #### 애플리케이션 최적화
 
 ```bash
-# 프로덕션 서버 실행 (여러 워커)
+# 프로덕션 서버 실행 (여러 워커, uv 사용)
+uv run uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8000
+
+# 기존 방식
 uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8000
 
 # 메모리 사용량 모니터링
+uv add --dev memory-profiler
+uv run python -m memory_profiler run.py
+
+# 기존 방식
 pip install memory-profiler
 python -m memory_profiler run.py
 ```
