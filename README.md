@@ -26,6 +26,9 @@ YouTube와 지식 웹 페이지를 정리하는 백엔드 API 서비스입니다
 - ✅ **포괄적인 테스트 커버리지 (30+ 테스트)**
 - ✅ **Docker 컨테이너 지원**
 - ✅ **자동 API 문서화**
+- ✅ **Next.js 프론트엔드 연동**
+- ✅ **북마크 노트 관리 시스템**
+- ✅ **URL 자동 분석 및 카테고리 분류**
 
 ## 🛠 기술 스택
 
@@ -478,6 +481,37 @@ curl -X GET "http://localhost:8000/api/bookmark/categories/list" \
 ["기술", "웹개발", "FastAPI", "Python", "데이터베이스"]
 ```
 
+## 🌐 프론트엔드 연동
+
+이 백엔드 API는 **Next.js 프론트엔드**와 연동되어 완전한 풀스택 애플리케이션을 제공합니다.
+
+### 프론트엔드 프로젝트
+- **위치**: `../category-note-frontend/`
+- **기술 스택**: Next.js 15, TypeScript, Tailwind CSS, Zustand, TanStack Query
+- **인증 방식**: JWT 토큰 기반 (백엔드와 동일)
+- **OAuth 지원**: GitHub/Google 소셜 로그인 완전 연동
+
+### 연동된 기능
+- ✅ **OAuth 로그인 플로우**: 백엔드 OAuth 엔드포인트와 완전 연동
+- ✅ **JWT 토큰 관리**: 자동 토큰 저장 및 갱신
+- ✅ **사용자 인증 상태 관리**: Zustand를 통한 전역 상태 관리
+- ✅ **API 클라이언트**: 백엔드 API와의 타입 안전한 통신
+- ✅ **2025 트렌드 UI**: Low light mode, Glassmorphism, Micro-interactions 적용
+
+### 개발 환경 실행
+```bash
+# 백엔드 서버 실행 (포트 8000)
+cd category-note-backend
+uv run python run.py
+
+# 프론트엔드 개발 서버 실행 (포트 3000)
+cd ../category-note-frontend
+pnpm dev
+```
+
+### CORS 설정
+백엔드는 프론트엔드 개발 서버(`http://localhost:3000`)와의 CORS 통신을 허용하도록 설정되어 있습니다.
+
 ## 🚀 향후 계획
 
 ### 단기 계획 (v1.1)
@@ -485,12 +519,14 @@ curl -X GET "http://localhost:8000/api/bookmark/categories/list" \
 - [ ] **URL 메타데이터 자동 추출**: 웹페이지 제목, 설명, 썸네일 이미지 자동 추출
 - [ ] **북마크 태그 시스템**: 카테고리 외에 자유로운 태그 추가 기능
 - [ ] **북마크 즐겨찾기**: 중요한 북마크를 즐겨찾기로 표시
+- [ ] **프론트엔드 북마크 관리 UI**: 북마크 CRUD 인터페이스 완성
 
 ### 중기 계획 (v1.2)
 - [ ] **전문 검색 엔진**: ElasticSearch 연동으로 고도화된 검색 기능
 - [ ] **북마크 공유**: 다른 사용자와 북마크 공유 및 팔로우 기능
 - [ ] **북마크 컬렉션**: 관련 북마크들을 그룹화하는 컬렉션 기능
 - [ ] **API 키 관리**: 외부 서비스 연동을 위한 API 키 관리
+- [ ] **실시간 알림**: WebSocket을 통한 실시간 업데이트
 
 ### 장기 계획 (v2.0)
 - [ ] **모바일 앱**: React Native 기반 모바일 애플리케이션
