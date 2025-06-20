@@ -10,7 +10,7 @@ class URL(Base):
     __tablename__ = "urls"
 
     id = Column(Integer, primary_key=True, index=True)
-    url = Column(String(2048), nullable=False, index=True)
+    url = Column(String(2048), nullable=False)  # 인덱스 제거 - 너무 긴 필드
     title = Column(String(500), nullable=True)
     description = Column(Text, nullable=True)
     user_id = Column(

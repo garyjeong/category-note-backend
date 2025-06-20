@@ -19,7 +19,9 @@ class BookmarkNote(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(500), nullable=False, index=True)  # 요약된 제목
-    url = Column(String(2048), nullable=False, index=True)  # 원본 URL
+    url = Column(
+        String(2048), nullable=False
+    )  # 원본 URL (인덱스 제거 - 너무 긴 필드)
     category1 = Column(
         String(100), nullable=True, index=True
     )  # 첫 번째 카테고리

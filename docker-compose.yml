@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfiles/database.Dockerfile
+    container_name: category-note-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: category_note
+      MYSQL_USER: category_user
+      MYSQL_PASSWORD: category_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: category-note-app
+    environment:
+      DATABASE_URL: mysql+pymysql://category_user:category_password@mysql:3306/category_note
+      JWT_SECRET_KEY: your-secret-key
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data: 
