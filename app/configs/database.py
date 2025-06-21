@@ -132,6 +132,23 @@ class ProductionConfigs(Configs):
 
 def get_database_url() -> str:
     """데이터베이스 접속 URL을 반환합니다."""
+    # DATABASE_URL 환경변수가 설정되어 있으면 우선 사용
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        # 보안상 패스워드는 로그에 출력하지 않음
+        safe_url = database_url
+        if "@" in database_url and ":" in database_url:
+            # mysql+pymysql://user:password@host:port/db 형태에서 패스워드 숨김
+            parts = database_url.split("@")
+            if len(parts) >= 2:
+                user_pass = parts[0].split("://")[-1]
+                if ":" in user_pass:
+                    user, password = user_pass.split(":", 1)
+                    safe_url = database_url.replace(f":{password}@", ":***@")
+        logger.info(f"데이터베이스 URL: {safe_url}")
+        return database_url
+
+    # DATABASE_URL이 없으면 개별 환경변수로 구성
     setting = get_configs()
     url = (
         f"mysql+pymysql://{setting.DATABASE_USER}:{setting.DATABASE_PASSWORD}"
