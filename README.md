@@ -192,21 +192,11 @@ pip install uv
 ### 3. 의존성 설치
 
 ```bash
-# uv를 사용하여 가상환경 생성 및 의존성 설치 (권장)
+# uv를 사용하여 가상환경 생성 및 의존성 설치
 uv sync
 
 # 또는 개발 의존성까지 모두 설치
 uv sync --all-groups
-```
-
-#### 기존 pip 방식 (레거시)
-
-```bash
-# 기존 방식 (권장하지 않음)
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# venv\Scripts\activate   # Windows
-pip install -r requirements.txt
 ```
 
 ### 4. 환경변수 설정
@@ -239,20 +229,20 @@ PORT=8000
 
 ```bash
 # MySQL 컨테이너 빌드
-docker build -f Dockerfiles/database.Dockerfile -t category-note-db .
+docker build -f Dockerfiles/database.Dockerfile -t category-note-database .
 
 # MySQL 컨테이너 실행
 docker run -d \
-  --name category-note-mysql \
+  --name category-note-database \
   -p 3306:3306 \
   -v mysql_data:/var/lib/mysql \
-  category-note-db
+  category-note-database
 
 # 컨테이너 상태 확인
 docker ps
 
 # 컨테이너 로그 확인
-docker logs category-note-mysql
+docker logs category-note-database
 ```
 
 #### 로컬 MySQL 사용
@@ -272,16 +262,11 @@ FLUSH PRIVILEGES;
 #### 개발 서버 실행
 
 ```bash
-# uv를 사용한 실행 (권장)
+# uv를 사용한 실행
 uv run python run.py
 
 # 또는 uv로 직접 uvicorn 실행
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# 기존 방식 (가상환경 활성화 후)
-python run.py
-# 또는
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 #### 프로덕션 서버 실행
@@ -289,9 +274,6 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```bash
 # uv를 사용한 프로덕션 실행
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
-
-# 기존 방식
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 서버가 성공적으로 실행되면 다음 주소에서 접근할 수 있습니다:
@@ -306,7 +288,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ### 전체 테스트 실행
 
 ```bash
-# uv를 사용한 테스트 실행 (권장)
+# uv를 사용한 테스트 실행
 uv run pytest tests/ -v
 
 # 커버리지와 함께 테스트 실행
@@ -316,10 +298,6 @@ uv run pytest tests/ -v --cov=app --cov-report=html
 uv run pytest tests/test_models.py -v
 uv run pytest tests/test_controllers.py -v
 uv run pytest tests/test_auth.py -v
-
-# 기존 방식 (가상환경 활성화 후)
-python -m pytest tests/ -v
-python -m pytest tests/ -v --cov=app --cov-report=html
 ```
 
 ### 테스트 카테고리
@@ -635,39 +613,39 @@ pnpm dev
 
 ## 🐳 Docker 사용법
 
-### MySQL 데이터베이스 컨테이너
 
-#### 컨테이너 빌드
+
+### MySQL 데이터베이스 Docker 설정
+
+프로젝트에 포함된 `Dockerfiles/database.Dockerfile`을 사용하여 MySQL 컨테이너를 구성할 수 있습니다:
+
+#### 데이터베이스 컨테이너 빌드
 
 ```bash
-docker build -f Dockerfiles/database.Dockerfile -t category-note-db .
+# MySQL 컨테이너 이미지 빌드
+docker build -f Dockerfiles/database.Dockerfile -t category-note-database .
 ```
 
-#### 컨테이너 실행
+#### 데이터베이스 컨테이너 실행
 
 ```bash
-# 기본 실행
+# 기본 실행 (환경변수는 Dockerfile에서 설정됨)
 docker run -d \
-  --name category-note-mysql \
-  -p 3306:3306 \
-  category-note-db
-
-# 환경변수 커스터마이징
-docker run -d \
-  --name category-note-mysql \
-  -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=your_root_password \
-  -e MYSQL_DATABASE=your_database_name \
-  -e MYSQL_USER=your_username \
-  -e MYSQL_PASSWORD=your_password \
-  category-note-db
-
-# 데이터 볼륨 마운트 (데이터 영속성)
-docker run -d \
-  --name category-note-mysql \
+  --name category-note-database \
   -p 3306:3306 \
   -v mysql_data:/var/lib/mysql \
-  category-note-db
+  category-note-database
+
+# 환경변수 커스터마이징 (필요한 경우)
+docker run -d \
+  --name category-note-database \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=your_root_password \
+  -e MYSQL_DATABASE=category_note \
+  -e MYSQL_USER=category_user \
+  -e MYSQL_PASSWORD=your_password \
+  -v mysql_data:/var/lib/mysql \
+  category-note-database
 ```
 
 #### 컨테이너 관리
@@ -677,122 +655,54 @@ docker run -d \
 docker ps
 
 # 컨테이너 로그 확인
-docker logs category-note-mysql
+docker logs category-note-database
 
 # 컨테이너 중지
-docker stop category-note-mysql
+docker stop category-note-database
 
 # 컨테이너 시작
-docker start category-note-mysql
+docker start category-note-database
 
 # 컨테이너 재시작
-docker restart category-note-mysql
+docker restart category-note-database
 
 # 컨테이너 삭제
-docker rm category-note-mysql
+docker rm category-note-database
 
 # 이미지 삭제
-docker rmi category-note-db
+docker rmi category-note-database
 ```
 
 #### MySQL 컨테이너 접속
 
 ```bash
 # MySQL 클라이언트로 접속
-docker exec -it category-note-mysql mysql -u root -p
+docker exec -it category-note-database mysql -u root -p
 
 # 컨테이너 내부 쉘 접속
-docker exec -it category-note-mysql bash
+docker exec -it category-note-database bash
 ```
 
-### 애플리케이션 Docker화 (선택사항)
+### 데이터베이스 연결 확인
 
-애플리케이션도 Docker로 실행하려면 다음 Dockerfile을 생성하세요:
-
-```dockerfile
-# Dockerfile
-FROM python:3.12-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8000
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-빌드 및 실행:
+MySQL 컨테이너가 정상적으로 실행된 후, 애플리케이션에서 데이터베이스 연결을 확인할 수 있습니다:
 
 ```bash
-# 애플리케이션 이미지 빌드
-docker build -t category-note-app .
+# 환경변수 설정 (MySQL 컨테이너와 일치해야 함)
+export DATABASE_URL="mysql+pymysql://user:wjdwhdans@localhost:3306/category_note"
 
-# 애플리케이션 컨테이너 실행
-docker run -d \
-  --name category-note-app \
-  -p 8000:8000 \
-  --link category-note-mysql:mysql \
-  -e DATABASE_URL=mysql+pymysql://category_user:category_password@mysql:3306/category_note \
-  category-note-app
+# Alembic으로 데이터베이스 연결 테스트
+uv run alembic current
+
+# 애플리케이션 실행
+uv run python run.py
 ```
 
-### Docker Compose (권장)
-
-전체 스택을 쉽게 관리하려면 `docker-compose.yml` 파일을 생성하세요:
-
-```yaml
-version: '3.8'
-
-services:
-  mysql:
-    build:
-      context: .
-      dockerfile: Dockerfiles/database.Dockerfile
-    container_name: category-note-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: category_note
-      MYSQL_USER: category_user
-      MYSQL_PASSWORD: category_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  app:
-    build: .
-    container_name: category-note-app
-    environment:
-      DATABASE_URL: mysql+pymysql://category_user:category_password@mysql:3306/category_note
-      JWT_SECRET_KEY: your-secret-key
-    ports:
-      - "8000:8000"
-    depends_on:
-      - mysql
-
-volumes:
-  mysql_data:
-```
-
-실행:
-
-```bash
-# 전체 스택 실행
-docker-compose up -d
-
-# 로그 확인
-docker-compose logs -f
-
-# 중지
-docker-compose down
-
-# 볼륨까지 삭제
-docker-compose down -v
-```
+**참고**: `Dockerfiles/database.Dockerfile`에 설정된 기본 환경변수:
+- `MYSQL_ROOT_PASSWORD`: `wjdwhdans`
+- `MYSQL_DATABASE`: `category_note`
+- `MYSQL_USER`: `user`
+- `MYSQL_PASSWORD`: `wjdwhdans`
 
 ## 💻 개발 가이드
 
@@ -829,11 +739,8 @@ docker-compose down -v
 
 4. **Git 훅 설정 (선택사항)**
    ```bash
-   # pre-commit 설치 (uv 사용)
+   # pre-commit 설치
    uv add --dev pre-commit
-   
-   # 기존 방식
-   pip install pre-commit
    
    # pre-commit 설정
    pre-commit install
@@ -926,17 +833,29 @@ docker-compose down -v
 현재는 SQLAlchemy의 `create_all()`을 사용하지만, 프로덕션에서는 Alembic 사용을 권장합니다:
 
 ```bash
-# Alembic 설치
-pip install alembic
+# Alembic 초기화
+uv run alembic init alembic
 
-# 초기화
-alembic init alembic
+# 마이그레이션 생성 (자동 생성)
+uv run alembic revision --autogenerate -m "Add new table"
 
-# 마이그레이션 생성
-alembic revision --autogenerate -m "Add new table"
+# 마이그레이션 생성 (특정 rev-id 지정)
+uv run alembic revision --autogenerate --rev-id "001" -m "Initial migration"
+
+# 마이그레이션 생성 (수동 생성)
+uv run alembic revision --rev-id "002" -m "Custom migration"
 
 # 마이그레이션 적용
-alembic upgrade head
+uv run alembic upgrade head
+
+# 특정 버전으로 업그레이드
+uv run alembic upgrade 001
+
+# 마이그레이션 히스토리 확인
+uv run alembic history
+
+# 현재 버전 확인
+uv run alembic current
 ```
 
 ## 🔧 환경변수 설정
@@ -1032,31 +951,67 @@ lsof -i :3306
 - 토큰 만료 시간 확인
 - 토큰 형식 확인 (`Bearer <token>`)
 
-#### 4. Python 버전 호환성 오류
+#### 4. MySQL 연결 오류 (가장 흔한 문제)
+
+**문제**: `Can't connect to MySQL server on 'localhost'` 오류
+
+**원인**: MySQL 서버가 실행되지 않음
+
+**해결책**:
+```bash
+# database.Dockerfile을 사용하여 MySQL 컨테이너 빌드
+docker build -f Dockerfiles/database.Dockerfile -t category-note-database .
+
+# MySQL 컨테이너 실행
+docker run -d \
+  --name category-note-database \
+  -p 3306:3306 \
+  -v mysql_data:/var/lib/mysql \
+  category-note-database
+
+# 연결 테스트
+uv run alembic current
+```
+
+#### 5. 환경변수 파일 누락
+
+**문제**: 환경변수 파일을 찾을 수 없다는 경고
+
+**해결책**:
+```bash
+# .env 파일 생성 (database.Dockerfile 환경변수와 일치)
+cat > .env << 'EOF'
+DATABASE_URL=mysql+pymysql://user:wjdwhdans@localhost:3306/category_note
+JWT_SECRET_KEY=your-super-secret-jwt-key-here-make-it-very-long-and-random
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+EOF
+```
+
+#### 6. Python 버전 호환성 오류
 
 **문제**: `authlib==1.6.0 depends on Python>=3.9` 오류
 
-**원인**: authlib 1.6.0부터 Python 3.9+ 필요하지만 프로젝트 설정이 >=3.8로 되어 있음
+**원인**: authlib 1.6.0부터 Python 3.9+ 필요
 
 **해결책**:
 ```bash
 # Python 3.9+ 설치 및 사용 확인
 python --version  # 3.9 이상이어야 함
 
-# pyproject.toml의 requires-python이 ">=3.9"로 설정되어 있는지 확인
-# (이미 업데이트됨)
-
 # uv로 다시 설치
 uv sync
 ```
 
-#### 5. 테스트 실행 오류
+#### 7. 테스트 실행 오류
 
 **문제**: 테스트가 실행되지 않음
 
 **해결책**:
 ```bash
-# uv를 사용한 테스트 의존성 재설치 (권장)
+# uv를 사용한 테스트 의존성 재설치
 uv sync --all-groups
 
 # 테스트 환경 확인
@@ -1064,10 +1019,22 @@ uv run python -m pytest --version
 
 # 특정 테스트만 실행
 uv run python -m pytest tests/test_models.py -v
+```
 
-# 기존 방식 (레거시)
-pip install -r requirements.txt
-python -m pytest tests/test_models.py -v
+#### 8. Docker 빌드 오류
+
+**문제**: MySQL Docker 이미지 빌드 실패
+
+**해결책**:
+```bash
+# .dockerignore 파일이 존재하는지 확인 (.venv 제외)
+cat .dockerignore
+
+# 캐시 없이 빌드
+docker build --no-cache -f Dockerfiles/database.Dockerfile -t category-note-database .
+
+# 빌드 과정 상세 로그 확인
+docker build -f Dockerfiles/database.Dockerfile -t category-note-database . --progress=plain
 ```
 
 ### 로그 확인
@@ -1107,19 +1074,12 @@ EXPLAIN SELECT * FROM users WHERE email = 'user@example.com';
 #### 애플리케이션 최적화
 
 ```bash
-# 프로덕션 서버 실행 (여러 워커, uv 사용)
+# 프로덕션 서버 실행 (여러 워커)
 uv run uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8000
-
-# 기존 방식
-uvicorn app.main:app --workers 4 --host 0.0.0.0 --port 8000
 
 # 메모리 사용량 모니터링
 uv add --dev memory-profiler
 uv run python -m memory_profiler run.py
-
-# 기존 방식
-pip install memory-profiler
-python -m memory_profiler run.py
 ```
 
 ## 📚 추가 리소스
